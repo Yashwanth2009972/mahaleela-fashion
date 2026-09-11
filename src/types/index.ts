@@ -25,6 +25,7 @@ export interface Product {
   collections: string[];
   is_signature?: boolean;
   is_exclusive?: boolean;
+  shipping_fee?: number;
   status: 'published' | 'draft' | 'archived';
   created_at?: string;
 }
@@ -166,6 +167,8 @@ export interface SiteSettings {
   address: string;
   free_shipping_threshold: number;
   cod_fee: number;
+  standard_shipping_fee?: number;
+  bottom_gallery?: Array<{ id: string; image_url: string; title?: string }>;
   social: {
     instagram: string;
     facebook: string;
@@ -191,6 +194,25 @@ export interface SiteSettings {
     last_synced_at?: string;
   };
 }
+
+export interface ColorOption {
+  name: string;
+  hex: string;
+  border?: boolean;
+}
+
+export const STANDARD_COLORS: ColorOption[] = [
+  { name: 'White', hex: '#FFFFFF', border: true },
+  { name: 'Black', hex: '#000000' },
+  { name: 'Red', hex: '#DC2626' },
+  { name: 'Royal Blue', hex: '#2563EB' },
+  { name: 'Dark Green', hex: '#166534' },
+  { name: 'Navy Blue', hex: '#1E3A8A' },
+  { name: 'Charcoal Grey', hex: '#4B5563' },
+  { name: 'Warm Ivory', hex: '#E7DFD5', border: true },
+  { name: 'Maroon', hex: '#800020' },
+  { name: 'Golden Yellow', hex: '#EAB308' },
+];
 
 export interface User {
   id: string;

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, Save, CheckCircle, Phone, MapPin, Share2, Truck, Banknote, Shield, Crown, Upload, Image as ImageIcon, CheckCircle2, Key, Info, Cloud, RefreshCw, Download, UploadCloud, Globe, Database, Radio } from 'lucide-react';
+import { Settings, Save, CheckCircle, Phone, MapPin, Share2, Truck, Banknote, Shield, Crown, Upload, Image as ImageIcon, CheckCircle2, Key, Info, Cloud, RefreshCw, Download, UploadCloud, Globe, Database, Radio, Sparkles, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SiteSettings } from '../../types';
 import { storeService } from '../../services/storeService';
 import { processImageFile } from '../../utils/imageOptimizer';
+import { ImageUploader } from '../../components/ui/ImageUploader';
 
 export const AdminSettings: React.FC = () => {
   const { settings, refreshSettings } = useApp();
@@ -21,6 +22,8 @@ export const AdminSettings: React.FC = () => {
   useEffect(() => {
     setFormData({
       ...settings,
+      standard_shipping_fee: settings.standard_shipping_fee ?? 60,
+      bottom_gallery: settings.bottom_gallery || [],
       google_client_id: settings.google_client_id || '',
       exclusive_settings: settings.exclusive_settings || {
         title: "MAHALEELA EXCLUSIVE",
@@ -714,6 +717,19 @@ export const AdminSettings: React.FC = () => {
 
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-neutral-400 mb-1">
+                Standard Delivery / Shipping Charge (₹)
+              </label>
+              <input
+                type="number"
+                value={formData.standard_shipping_fee ?? 60}
+                onChange={(e) => setFormData({ ...formData, standard_shipping_fee: Number(e.target.value) })}
+                className="w-full bg-neutral-950 border border-neutral-700 p-2.5 rounded text-white focus:outline-none focus:border-luxury-gold font-mono"
+              />
+              <span className="text-[10px] text-neutral-500 mt-1 block">Transparently added to product orders: "Product Price + Shipping Charges = Total Amount".</span>
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-wider text-neutral-400 mb-1">
                 COD Convenience Fee (₹)
               </label>
               <input
@@ -724,6 +740,44 @@ export const AdminSettings: React.FC = () => {
               />
               <span className="text-[10px] text-neutral-500 mt-1 block">Convenience charge added specifically for cash on delivery checkout.</span>
             </div>
+          </div>
+        </div>
+
+        {/* 4.5. BOTTOM HOMEPAGE PHOTO GALLERY (9:16 VERTICAL 4K) */}
+        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-lg space-y-6">
+          <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-luxury-gold" />
+              <h3 className="font-serif text-base uppercase tracking-wider text-white">
+                Bottom Homepage Photo Gallery (9:16 Vertical, 4K)
+              </h3>
+            </div>
+            <span className="text-[10px] uppercase tracking-luxury text-luxury-gold font-mono">
+              {(formData.bottom_gallery || []).length} Photo{formData.bottom_gallery?.length !== 1 ? 's' : ''} Live
+            </span>
+          </div>
+
+          <p className="text-[11px] text-neutral-400 leading-relaxed">
+            Upload high-resolution 4K photos directly from your device. These photos scroll horizontally at the bottom of your homepage in strict <strong>9:16 vertical ratio</strong>.
+          </p>
+
+          <div className="bg-neutral-950 p-4 rounded border border-neutral-800">
+            <ImageUploader
+              images={(formData.bottom_gallery || []).map(g => g.image_url)}
+              onChange={(newImgs) => {
+                setFormData(prev => ({
+                  ...prev,
+                  bottom_gallery: newImgs.map((url, i) => ({
+                    id: `gal-${Date.now()}-${i}`,
+                    image_url: url,
+                    title: `Editorial ${i + 1}`
+                  }))
+                }));
+              }}
+              multiple={true}
+              label="Upload 4K 9:16 Photos Directly From Device"
+              helperText="Upload vertical photos directly from your phone/computer (in full 4K clarity). Drag & reorder or delete anytime."
+            />
           </div>
         </div>
 

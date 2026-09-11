@@ -132,6 +132,15 @@ export const INITIAL_STORE_DATA = {
       "image": "",
       "count": 0,
       "sort_order": 11
+    },
+    {
+      "id": "cat-12",
+      "name": "Mobile Covers",
+      "slug": "mobile-covers",
+      "description": "Precision-engineered shockproof luxury phone cases.",
+      "image": "",
+      "count": 0,
+      "sort_order": 12
     }
   ],
   "collections": [],

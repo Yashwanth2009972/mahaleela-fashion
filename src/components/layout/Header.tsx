@@ -56,13 +56,12 @@ export const Header: React.FC = () => {
               </span>
             </button>
 
-            {/* Subtle Quick Links on Desktop */}
-            <nav className="hidden lg:flex items-center space-x-6 text-[11px] uppercase tracking-luxury text-neutral-400 font-light">
-              <Link to="/new-arrivals" className="hover:text-white transition-colors">New Arrivals</Link>
-              <Link to="/clothing" className="hover:text-white transition-colors">Clothing</Link>
-              <Link to="/accessories" className="hover:text-white transition-colors">Accessories</Link>
-              <Link to="/collections" className="hover:text-luxury-gold transition-colors">Collections</Link>
-              <Link to="/exclusive" className="text-luxury-gold hover:text-white transition-colors font-medium">Exclusive</Link>
+            {/* Quick Links on Desktop: Home & Exclusive Only */}
+            <nav className="hidden lg:flex items-center space-x-6 text-xs uppercase tracking-luxury text-neutral-300 font-semibold">
+              <Link to="/" className="hover:text-luxury-gold transition-colors">Home Store</Link>
+              <Link to="/exclusive" className="text-luxury-gold hover:text-white transition-colors font-bold flex items-center space-x-1">
+                <span>Exclusive Store</span>
+              </Link>
             </nav>
           </div>
 
@@ -188,20 +187,15 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Main Links */}
-              <nav className="mt-8 space-y-5">
+              <nav className="mt-8 space-y-4">
                 {[
-                  { name: "MEN", path: "/men" },
-                  { name: "NEW ARRIVALS", path: "/new-arrivals" },
-                  { name: "CLOTHING", path: "/clothing" },
-                  { name: "ACCESSORIES", path: "/accessories" },
-                  { name: "COLLECTIONS", path: "/collections" },
-                  { name: "THE SALE EDIT", path: "/sale" },
+                  { name: "HOME STORE", path: "/" },
                   { name: "MAHALEELA EXCLUSIVE", path: "/exclusive" }
                 ].map((item) => (
                   <Link
                     key={item.name}
                     to={item.path}
-                    className="group flex items-center justify-between text-lg tracking-widest uppercase font-serif py-1.5 hover:text-luxury-gold transition-colors"
+                    className="group flex items-center justify-between text-lg tracking-widest uppercase font-serif py-3 hover:text-luxury-gold transition-colors border-b border-neutral-900"
                   >
                     <span>{item.name}</span>
                     <ChevronRight className="w-4 h-4 text-neutral-600 group-hover:text-luxury-gold transition-transform group-hover:translate-x-1" />

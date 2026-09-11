@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Plus, Edit2, Trash2, Search, ExternalLink, Filter, Check, X } from 'lucide-react';
-import { Product, Category, Collection } from '../../types';
+import { Package, Plus, Edit2, Trash2, Search, ExternalLink, Filter, Check, X, Sparkles, Tag, Truck } from 'lucide-react';
+import { Product, Category, Collection, STANDARD_COLORS } from '../../types';
 import { ImageUploader } from '../../components/ui/ImageUploader';
 import { storeService } from '../../services/storeService';
 
@@ -24,10 +24,12 @@ export const AdminProducts: React.FC = () => {
     sku: '',
     category_id: 'cat-1',
     category: 'T-Shirts',
-    price: 999,
-    mrp: 1499,
+    price: 599,
+    mrp: 1199,
+    discount: 50,
+    shipping_fee: 60,
     description: '',
-    colours: ['Deep Black', 'Warm Ivory'],
+    colours: ['White', 'Black', 'Red', 'Royal Blue', 'Dark Green'],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     stock: 25,
     images: [] as string[],
@@ -37,6 +39,7 @@ export const AdminProducts: React.FC = () => {
     is_exclusive: false,
     status: 'published' as 'published' | 'draft' | 'archived'
   });
+  const [customColourInput, setCustomColourInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchAll = () => {
@@ -71,10 +74,12 @@ export const AdminProducts: React.FC = () => {
       sku: `ML-${Math.floor(100 + Math.random() * 900)}`,
       category_id: categories[0]?.id || 'cat-1',
       category: categories[0]?.name || 'T-Shirts',
-      price: 999,
-      mrp: 1499,
-      description: 'Crafted from heavyweight organic textiles with refined architectural silhouette.',
-      colours: ['Deep Black', 'Warm Ivory'],
+      price: 599,
+      mrp: 1199,
+      discount: 50,
+      shipping_fee: 60,
+      description: 'Crafted from heavyweight organic textiles with refined architectural drape.',
+      colours: ['White', 'Black', 'Red', 'Royal Blue', 'Dark Green'],
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       stock: 25,
       images: [],
@@ -84,21 +89,28 @@ export const AdminProducts: React.FC = () => {
       is_exclusive: false,
       status: 'published'
     });
+    setCustomColourInput('');
     setIsModalOpen(true);
   };
 
   const openEditModal = (p: Product) => {
     setEditingProduct(p);
+    const pMrp = p.mrp || p.price;
+    const pPrice = p.price;
+    const pDiscount = p.discount || (pMrp > pPrice ? Math.round(((pMrp - pPrice) / pMrp) * 100) : 0);
+
     setFormData({
       name: p.name,
       slug: p.slug,
       sku: p.sku,
       category_id: p.category_id,
       category: p.category,
-      price: p.price,
-      mrp: p.mrp,
+      price: pPrice,
+      mrp: pMrp,
+      discount: pDiscount,
+      shipping_fee: p.shipping_fee ?? 60,
       description: p.description || '',
-      colours: p.colours || ['Deep Black'],
+      colours: p.colours && p.colours.length > 0 ? p.colours : ['White', 'Black', 'Red', 'Royal Blue', 'Dark Green'],
       sizes: p.sizes || ['S', 'M', 'L', 'XL', 'XXL'],
       stock: p.stock || 0,
       images: p.images || [],
@@ -108,6 +120,7 @@ export const AdminProducts: React.FC = () => {
       is_exclusive: Boolean(p.is_exclusive),
       status: p.status || 'published'
     });
+    setCustomColourInput('');
     setIsModalOpen(true);
   };
 
@@ -238,7 +251,14 @@ export const AdminProducts: React.FC = () => {
                     </td>
                     <td className="p-4 font-mono text-neutral-300">{p.category}</td>
                     <td className="p-4">
-                      <div className="font-medium text-white">₹{p.price.toLocaleString()}</div>
+                      <div className="font-medium text-white flex items-center space-x-1.5">
+                        <span>₹{p.price.toLocaleString()}</span>
+                        {p.mrp > p.price && (
+                          <span className="text-[9px] font-bold text-luxury-gold bg-luxury-gold/15 px-1 py-0.5 rounded">
+                            {p.discount || Math.round(((p.mrp - p.price) / p.mrp) * 100)}% OFF
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[10px] text-neutral-500 line-through">₹{p.mrp.toLocaleString()}</div>
                     </td>
                     <td className="p-4">
@@ -355,13 +375,17 @@ export const AdminProducts: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-neutral-400 mb-1 uppercase text-[10px]">Price (₹) *</label>
+                  <label className="block text-neutral-400 mb-1 uppercase text-[10px]">Selling Price (₹) *</label>
                   <input
                     type="number"
                     required
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full bg-neutral-950 border border-neutral-700 p-2 rounded text-white focus:outline-none focus:border-luxury-gold font-mono"
+                    onChange={(e) => {
+                      const newPrice = Number(e.target.value);
+                      const newDiscount = formData.mrp > newPrice ? Math.round(((formData.mrp - newPrice) / formData.mrp) * 100) : 0;
+                      setFormData(prev => ({ ...prev, price: newPrice, discount: newDiscount }));
+                    }}
+                    className="w-full bg-neutral-950 border border-neutral-700 p-2 rounded text-white focus:outline-none focus:border-luxury-gold font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -370,9 +394,122 @@ export const AdminProducts: React.FC = () => {
                     type="number"
                     required
                     value={formData.mrp}
-                    onChange={(e) => setFormData({ ...formData, mrp: Number(e.target.value) })}
+                    onChange={(e) => {
+                      const newMrp = Number(e.target.value);
+                      const newDiscount = newMrp > formData.price ? Math.round(((newMrp - formData.price) / newMrp) * 100) : 0;
+                      setFormData(prev => ({ ...prev, mrp: newMrp, discount: newDiscount }));
+                    }}
                     className="w-full bg-neutral-950 border border-neutral-700 p-2 rounded text-white focus:outline-none focus:border-luxury-gold font-mono"
                   />
+                </div>
+              </div>
+
+              {/* AUTOMATICALLY GENERATED GOLDEN DISCOUNT PREVIEW */}
+              {formData.mrp > formData.price && (
+                <div className="flex items-center space-x-2 p-2.5 bg-luxury-gold/15 border border-luxury-gold/50 rounded text-xs text-luxury-gold font-medium">
+                  <Sparkles className="w-4 h-4 text-luxury-gold flex-shrink-0" />
+                  <span>
+                    <strong>Auto-Generated Golden Discount:</strong> {formData.discount}% OFF (Customer saves ₹{(formData.mrp - formData.price).toLocaleString()} on MRP)
+                  </span>
+                </div>
+              )}
+
+              {/* CIRCULAR COLOUR OPTIONS PICKER */}
+              <div className="space-y-2 bg-neutral-950 p-4 rounded border border-neutral-800">
+                <div className="flex items-center justify-between">
+                  <label className="block uppercase text-[10px] font-bold tracking-wider text-luxury-gold">
+                    Available Product Colours (Circular Swatches)
+                  </label>
+                  <span className="text-[11px] text-neutral-400">
+                    {formData.colours.length} colour{formData.colours.length !== 1 ? 's' : ''} active
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  {STANDARD_COLORS.map((col) => {
+                    const isSelected = formData.colours.some(c => c.toLowerCase() === col.name.toLowerCase());
+                    return (
+                      <button
+                        key={col.name}
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            colours: isSelected
+                              ? prev.colours.filter(c => c.toLowerCase() !== col.name.toLowerCase())
+                              : [...prev.colours, col.name]
+                          }));
+                        }}
+                        title={col.name}
+                        className={`group relative flex items-center justify-center w-8 h-8 rounded-full transition-all ${
+                          isSelected
+                            ? 'ring-2 ring-luxury-gold ring-offset-2 ring-offset-neutral-900 scale-110 shadow-md'
+                            : 'opacity-60 hover:opacity-100 hover:scale-105'
+                        } ${col.border ? 'border border-neutral-400' : 'border border-neutral-700'}`}
+                        style={{ backgroundColor: col.hex }}
+                      >
+                        {isSelected && (
+                          <Check className={`w-3.5 h-3.5 ${col.hex.toLowerCase() === '#ffffff' ? 'text-black' : 'text-white'} stroke-[3]`} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Active Colours Tag List */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-2">
+                  {formData.colours.map(c => (
+                    <span key={c} className="inline-flex items-center space-x-1 px-2 py-0.5 bg-neutral-900 border border-neutral-700 rounded text-[11px] text-white">
+                      <span>{c}</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, colours: prev.colours.filter(x => x !== c) }))}
+                        className="text-neutral-400 hover:text-red-400 ml-1"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                {/* Custom Colour Adder */}
+                <div className="flex items-center space-x-2 pt-2">
+                  <input
+                    type="text"
+                    placeholder="Add custom colour name..."
+                    value={customColourInput}
+                    onChange={(e) => setCustomColourInput(e.target.value)}
+                    className="bg-neutral-900 border border-neutral-700 px-3 py-1 text-xs rounded text-white focus:outline-none focus:border-luxury-gold"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (customColourInput.trim() && !formData.colours.includes(customColourInput.trim())) {
+                        setFormData(prev => ({ ...prev, colours: [...prev.colours, customColourInput.trim()] }));
+                        setCustomColourInput('');
+                      }
+                    }}
+                    className="px-3 py-1 bg-neutral-800 hover:bg-neutral-700 text-luxury-gold text-xs rounded font-medium"
+                  >
+                    + Add
+                  </button>
+                </div>
+              </div>
+
+              {/* SHIPPING FEE */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-neutral-400 mb-1 uppercase text-[10px] flex items-center space-x-1">
+                    <Truck className="w-3 h-3 text-luxury-gold" />
+                    <span>Shipping Charges (₹)</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.shipping_fee}
+                    onChange={(e) => setFormData({ ...formData, shipping_fee: Number(e.target.value) })}
+                    className="w-full bg-neutral-950 border border-neutral-700 p-2 rounded text-white focus:outline-none focus:border-luxury-gold font-mono"
+                  />
+                  <span className="text-[10px] text-neutral-500">Transparently added at checkout: Product + Shipping</span>
                 </div>
               </div>
 
