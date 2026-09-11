@@ -134,19 +134,18 @@ export const AdminLayout: React.FC = () => {
     );
   }
 
-  // Admin Navigation Sidebar Items - COLLECTIONS IS CLEARLY VISIBLE AND PROMINENT
+  // Admin Navigation Sidebar Items - Aligned with Homepage Architecture
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
-    { name: 'Collections', path: '/admin/collections', icon: Layers },
-    { name: 'Products', path: '/admin/products', icon: Package },
-    { name: 'Categories', path: '/admin/categories', icon: FolderTree },
-    { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-    { name: 'Homepage Builder', path: '/admin/homepage', icon: Sliders },
-    { name: 'Banners', path: '/admin/banners', icon: Image },
-    { name: 'Coupons', path: '/admin/coupons', icon: Tag },
-    { name: 'Exclusive Edition', path: '/admin/exclusive', icon: Sparkles },
-    { name: 'Media Library', path: '/admin/media', icon: Image },
-    { name: 'Site Settings', path: '/admin/settings', icon: Settings },
+    { name: 'Homepage Layout', path: '/admin/homepage', icon: Sliders },
+    { name: 'Products (2-Column)', path: '/admin/products', icon: Package },
+    { name: 'Horizontal Categories', path: '/admin/categories', icon: FolderTree },
+    { name: 'Orders & WhatsApp', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Hero Banners', path: '/admin/banners', icon: Image },
+    { name: 'Exclusive Store', path: '/admin/exclusive', icon: Sparkles },
+    { name: 'Discount Coupons', path: '/admin/coupons', icon: Tag },
+    { name: 'Collections Archive', path: '/admin/collections', icon: Layers },
+    { name: 'Site Settings & Cloud', path: '/admin/settings', icon: Settings },
   ];
 
   // Breadcrumbs calculation
